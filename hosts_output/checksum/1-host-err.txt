@@ -1,0 +1,15 @@
+-- Wrong checksum value
+-- Expected: checksum=0xe4c3
+-- Got: checksum=0x0000
+Traceback (most recent call last):
+  File "./checker/checker.py", line 77, in <module>
+    main()
+  File "./checker/checker.py", line 71, in main
+    passive(args.host, args.testname)
+  File "./checker/checker.py", line 38, in passive
+    status = fn(testname, packets)
+  File "/home/student/hw-pcom/homework1-public/checker/tests.py", line 351, in forward_p
+    dump_packets(origpackets)
+  File "/home/student/hw-pcom/homework1-public/checker/tests.py", line 21, in dump_packets
+    error("Packet\n{}".format(p.show(dump=True)))
+TypeError: show() got an unexpected keyword argument 'dump'

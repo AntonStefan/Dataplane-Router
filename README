@@ -1,0 +1,28 @@
+Anton Stefan
+321CC
+Tema 1 - Router-Dataplane
+
+
+Cerinte rezolvate:
+    Toate cerintele temei au fost implementate, mai putin host_unreachable care pica pe checker.
+    Din pacate nu am mai avut timp sa ma ocup de warningurile care apar pe vmchecker de pe moodle,
+     deoarece local cu makefileul dat din tema nu apareau aceste warninguri (werror), si astfel am intampinat problema prea 
+     tarziu pentru a se mai putea face ceva, ciudat)
+
+Timp:
+    Tema a fost una stufoasa care a necesitat mult timp, cam 2 saptamani , dar din care am invatat principiile de dirijare a unui router cu pachete
+    IPV4, ARP si ICMP peste Ethernet
+
+Implementare:
+	Pentru inceput am alocat memorie structurilor folosite.  Dupa se apeleaza functia blocanta recv_from_any_link() care recepteaza pachetele. 
+	Prima data verificam daca pachetul este de tip IPV4. Daca este initializam structurile specifice si verificam daca routerul e destinatia pachetului.
+	In cazul in care routerul e destinatia se  da ping reply cu un pachet ICMP, in care sunt actualizate adresele si headerul. 
+	Dupa se verifica checksumul pachetului, daca nu este bun este aruncat, apoi time-to-live, in care daca este prea mic este tot aruncat si se intoarce un pachet ICMP time exceeded. 
+	In continuare decrementam time to live si recalculam checksumul deoarece headerul de IPV4 s-a schimbat.
+	Dupa urmeaza cazul in care un pachet IPV4 nu este desitnat routerului, si cautam unde sa il trimita in continuare. 
+	Am aplicat Longest Prefix Match  pentru a cauta eficient cea mai buna solutie de destinatie, utilizand Binary Search eficient cu o sortare dupa prefix,
+	sau in caz de egalitate dupa masca. Daca nu a fost gasita nicio destinatie  se trimite un  ICMP de tip host unreachable, altfel se va cauta un IP corespunzator intrarii in tabela arp cache. 
+	Daca este gasita routerul actualizeaza headerul Ethernet cu adresele Mac actualizate. Daca nu este gasita se va pune pachetul intr-o coada de asteptare, si se va trimite un Arp request.
+	In final a ramas sa verificam daca pachetul e de tip Arp, avand doua cazuri, Arp reply in care folosim functia update_arp_cache(), 
+	in care completam cacheul Arp si parcurgem coada pachetelor care au avut Arp request si asteptau adresa Mac din reply, 
+	si Arp request care foloseste functia  handle_arp_request() in care transformam pachetul in reply. 
